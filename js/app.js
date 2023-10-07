@@ -94,7 +94,7 @@ function restartTheGame(className){
     displaySidesPlayers("hide");
     deleteElementsByClass(className);
 
-    CountScorePlayerOne ++;
+    countScorePlayerOne ++;
 
     listPlayers.forEach((list) => {
         list.player.classList.remove("signIsX");
@@ -104,6 +104,8 @@ function restartTheGame(className){
     })
 
     alertCheck = true;
+    countCheck = true;
+
     resetGame.classList.add("btnTurnOff");
     startGame.classList.remove("btnTurnOff");
 }
@@ -118,8 +120,8 @@ function deleteElementsByClass(className) {
 
 function countPlusOne(countScore) {
     countScore = countScore + 1;
-    ScorePlayerOne.innerHTML = "Score : "+CountScorePlayerOne;
-    ScorePlayerTwo.innerHTML = "Score : "+CountScorePlayerTwo;
+    ScorePlayerOne.innerHTML = "Score : "+countScorePlayerOne;
+    ScorePlayerTwo.innerHTML = "Score : "+countScorePlayerTwo;
 }
 
 // la base des carrés qui seront clonés
@@ -148,12 +150,12 @@ let playerOneSign;
 const sideSignOne = document.createElement("p");
 
 // variable que j'utilise comme compteur pour avoir le score du player 1
-let CountScorePlayerOne = 0;
+let countScorePlayerOne = 0;
 
 // element html pour afficher le score du player 1
 const ScorePlayerOne = document.createElement("p");
 ScorePlayerOne.classList.add("scorePlayer");
-ScorePlayerOne.innerHTML = "Score : "+CountScorePlayerOne;
+ScorePlayerOne.innerHTML = "Score : "+countScorePlayerOne;
 
 //////////////////// bloc avec les infos player 2 ////////////////////
 //div
@@ -171,12 +173,12 @@ let playerTwoSign;
 const sideSignTwo = document.createElement("p");
 
 // variable que j'utilise comme compteur pour avoir le score du player 2
-let CountScorePlayerTwo = 0;
+let countScorePlayerTwo = 0;
 
 // element html pour afficher le score du player 2
 const ScorePlayerTwo = document.createElement("p");
 ScorePlayerTwo.classList.add("scorePlayer");
-ScorePlayerTwo.innerHTML = "Score : "+CountScorePlayerTwo;
+ScorePlayerTwo.innerHTML = "Score : "+countScorePlayerTwo;
 
 // array des class que j'utilise pour supprimer des balises html
 const elementsToDelete = [
@@ -195,12 +197,14 @@ const listPlayers = [
     {
         player:sidePlayerOne,
         sign:playerOneSign,
-        score: CountScorePlayerOne
+        score:countScorePlayerOne,
+        elemScore:ScorePlayerOne
     },
     {
-        player: sidePlayerTwo,
-        sign: playerTwoSign,
-        score: CountScorePlayerTwo
+        player:sidePlayerTwo,
+        sign:playerTwoSign,
+        score:countScorePlayerTwo,
+        elemScore:ScorePlayerTwo
     }
 ];
 
@@ -215,6 +219,9 @@ const resetGame = document.getElementById("btnResetGame");
 
 // me permet de faire passer les alert une seule fois en cas de victoire avec un board complet ou en cas de victoire avec deux lignes gagnantes
 let alertCheck = true;
+
+// me permet d'être sur que le score n'augmente que d'un point par partie
+let countCheck = true;
 
 // position nécessaire pour permettre à X ou O de gagner
 const winningPositions = [
@@ -263,12 +270,10 @@ const winningPositions = [
     }
 ];
 
-
-
 // le jeu commence
 startGame.addEventListener("click", function() {
 
-    playerOneSign = prompt("Player 1 : O or X ?");
+    playerOneSign = prompt("Player 1 : O or X ?","O");
     while(playerOneSign != "O"&&playerOneSign != "X") {
         if(playerOneSign == "o"||playerOneSign == "x") {
             alert("Veuillez mettre le caractères en majuscule !");
@@ -279,7 +284,7 @@ startGame.addEventListener("click", function() {
         }
     }
     
-    playerTwoSign = prompt("Player 2 : O or X ?");
+    playerTwoSign = prompt("Player 2 : O or X ?","X");
     while((playerTwoSign == playerOneSign) ^ (playerTwoSign != "O" && playerTwoSign != "X")) {
         console.log("p1 est :"+playerOneSign+" et p2 :"+playerTwoSign)
         if(playerTwoSign == playerOneSign) {
@@ -300,18 +305,11 @@ startGame.addEventListener("click", function() {
     sideSignTwo.innerHTML = "Symbole : "+playerTwoSign;
     sidePlayerTwo.appendChild(sideSignTwo);
 
-
     sidePlayerOne.appendChild(ScorePlayerOne);
     sidePlayerTwo.appendChild(ScorePlayerTwo);
 
     const nbCarre = 9;
     let nbClicked = 1;
-
-    // if(typeof playerOneObject == 'undefined') {
-    //     playerOneObject = new Player("player1", playerOneSign, 0);
-    //     playerTwoObject = new Player("player2", playerTwoSign, 0);
-    // } 
-
 
     currentSide = "O";
 
@@ -351,21 +349,24 @@ startGame.addEventListener("click", function() {
                             for (let i = 0; i < roundWinner.length; i++) {
                                 const openRoundWinner = roundWinner[i];
                                 openRoundWinner.appendChild(victoire);
+                                
+                            } 
 
-
-
-                                listPlayers.forEach((list) => {
-                                    if(list.player.classList.contains("currentTurn"+currentSide)) {
+                            listPlayers.forEach((list) => {
+                                if(list.player.classList.contains("currentTurn"+currentSide)) {
+                                    if(countCheck) {
                                         list.score += 1;
-                                        console.log("Score "+list.player+" : +1 ");
-                                        console.log("Score "+list.score);
-
+                                        countCheck = false;
                                     }
-                                })
 
-                                ScorePlayerOne.innerHTML = "Score : "+CountScorePlayerOne;
-                                ScorePlayerTwo.innerHTML = "Score : "+CountScorePlayerTwo;
-                            }
+                                    window.addEventListener("click", () => {
+                                        list.elemScore.innerHTML = "Score : "+list.score;
+                                    })
+
+                                    console.log("Score "+list.player+" : +1 ");
+                                    console.log("Score "+list.score);
+                                }
+                            })
 
                             for (let i = 0; i < clickedSides.length; i++) {
                                 const openCarreMorpion = clickedSides[i];
