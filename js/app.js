@@ -1,4 +1,4 @@
-// function qui permet de changer le tour du joueur
+// function qui permet de changer le tour des joueurs
 function switchSides() {
     if(currentSide == playerOneSign) {
         currentSide = playerTwoSign;
@@ -8,7 +8,7 @@ function switchSides() {
     switchTurnColor(currentSide);
 }
 
-// ajoute une classe au joueur a qui c'est le tour de jouer et l'enlève de l'autre joueur
+// ajoute une classe au joueur dont c'est le tour de jouer et l'enlève de l'autre joueur
 function switchTurnColor(currentSide) {
     let stringCurrentSide = "signIs"+currentSide;
 
