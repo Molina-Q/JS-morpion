@@ -62,10 +62,10 @@ function displaySidesPlayers(addOrRemove) {
 // function qui termine le jeu, fait apparaitre le btn reset et lui donne un eventListener sur clic
 function gameOver() {
     if(alertCheck) {
-        alert("Partie terminé !");
+        alert("Round terminé !");
     }
     alertCheck = false;
-    alertCheck = false;
+
     resetGame.classList.remove("btnTurnOff");
     resetGame.addEventListener("click", () => restartTheGame());
 }
@@ -78,6 +78,13 @@ function restartTheGame(){
         list.name.player.classList.remove("currentTurnX");
         list.name.player.classList.remove("currentTurnO");
     })
+
+    // tant que la var est false le score ne sera pas remis à zéro
+    if(gameIsFinished) {
+        playerOne.setScore(0);
+        playerTwo.setScore(0);
+        gameIsFinished = false;
+    }
 
     alertCheck = true;
     countCheck = true;
@@ -165,6 +172,7 @@ const elementsToDelete = [
 
 // object playerOne, playerTwo et la list des player,  
 const playerOne = {
+    libelle: "Player 1",
     player: sidePlayerOne,
     sign: playerOneSign,
     score: countScorePlayerOne,
@@ -183,6 +191,7 @@ const playerOne = {
 };
 
 const playerTwo = {
+    libelle: "Player 2",
     player: sidePlayerTwo,
     sign: playerTwoSign,
     score: countScorePlayerTwo,
@@ -227,6 +236,9 @@ let alertCheck = true;
 
 // me permet d'être sur que le score n'augmente que d'un point par partie
 let countCheck = true;
+
+// check si la partie a été remporté par quelqu'un
+let gameIsFinished = false;
 
 // score total des deux player
 let countScoreTotal;
@@ -371,18 +383,22 @@ startGame.addEventListener("click", function() {
                                 if(list.name.player.classList.contains("currentTurn"+currentSide) && countCheck) {
                                     countCheck = false;   
                                     list.name.setScore(list.name.getScore() + 1);    
-
-                                    if((playerOne.getScore() + playerTwo.getScore()) == 2) {
-                                        highestScore = Math.max(playerOne.getScore(), playerTwo.getScore());
-
-                                        if(list.name.getScore() == highestScore) {
-                                            alert(list.name.sign+" à gagné la partie avec le plus de points !")
-                                        }
-                                    }
-
+                                    
                                     window.addEventListener("click", () => {
                                         list.name.elemScore.innerHTML = "Score : "+list.name.getScore();
                                     })
+
+                                    console.log("p1 "+playerOne.getScore() )
+                                    console.log("p2 "+playerTwo.getScore())
+                                    console.log("total "+(playerOne.getScore() + playerTwo.getScore()))
+                                    console.log("max : "+Math.max(playerOne.getScore(), playerTwo.getScore()))
+
+                                    if((Math.max(playerOne.getScore(), playerTwo.getScore())) == 3) {
+
+                                        alert(list.name.libelle+" à gagné la partie avec le plus de points !");
+                                        gameIsFinished = true;
+                                        
+                                    }
                                 }
                             })
 
