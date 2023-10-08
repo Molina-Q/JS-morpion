@@ -10,24 +10,22 @@ function switchSides() {
 
 // ajoute une classe au joueur dont c'est le tour de jouer et l'enlève de l'autre joueur
 function switchTurnColor(currentSide) {
-    let stringCurrentSide = "signIs"+currentSide;
-
     listPlayers.forEach((list) => {
-        switch (stringCurrentSide) {
-            case "signIsX":
-                if(list.player.classList.contains("signIsX")) {
-                    list.player.classList.add("currentTurnX");
+        switch (currentSide) {
+            case "X":
+                if(list.name.sign == "X") {
+                    list.name.player.classList.add("currentTurnX");
                 } else {
-                    list.player.classList.remove("currentTurnO");
+                    list.name.player.classList.remove("currentTurnO");
                 }
 
                 break;
 
-            case "signIsO":
-                if(list.player.classList.contains("signIsO")) {
-                    list.player.classList.add("currentTurnO");
+            case "O":
+                if(list.name.sign == "O") {
+                    list.name.player.classList.add("currentTurnO");
                 } else {
-                    list.player.classList.remove("currentTurnX");
+                    list.name.player.classList.remove("currentTurnX");
                 }
 
                 break;
@@ -36,23 +34,6 @@ function switchTurnColor(currentSide) {
                 break;
         }
     })
-    // for (let i = 0; i < signO.length; i++) {
-    //     const openSignO = signO[i]; 
-    //     if (openSignO.classList.contains(stringCurSide)) {
-    //         openSignO.classList.add("currentTurnO");
-    //     } else {
-    //         openSignO.classList.remove("currentTurnO");
-    //     }     
-    // }
-
-    // for (let i = 0; i < signX.length; i++) {
-    //     const openSignX = signX[i];
-    //     if(openSignX.classList.contains(stringCurSide)) {
-    //         openSignX.classList.add("currentTurnX");
-    //     } else {
-    //         openSignX.classList.remove("currentTurnX");
-    //     }
-    // }
 }
 
 // add ou remove les div sidePlayer
@@ -76,31 +57,26 @@ function displaySidesPlayers(addOrRemove) {
     }
     sidePlayerOne.classList.toggle("sideOff");
     sidePlayerTwo.classList.toggle("sideOff");
-    console.log("player toggle on/off");
 }
 
 // function qui termine le jeu, fait apparaitre le btn reset et lui donne un eventListener sur clic
-function gameOver(className) {
+function gameOver() {
     if(alertCheck) {
         alert("Partie terminé !");
     }
     alertCheck = false;
+    alertCheck = false;
     resetGame.classList.remove("btnTurnOff");
-    resetGame.addEventListener("click", () => restartTheGame(className));
+    resetGame.addEventListener("click", () => restartTheGame());
 }
 
 // function qui restart le jeu en effaçant le contenu du board, appelé lors d'un clic sur le btn reset avec l'eventListener de gameOver() 
-function restartTheGame(className){
+function restartTheGame(){
     displaySidesPlayers("hide");
-    deleteElementsByClass(className);
-
-    countScorePlayerOne ++;
 
     listPlayers.forEach((list) => {
-        list.player.classList.remove("signIsX");
-        list.player.classList.remove("signIsO");
-        list.player.classList.remove("currentTurnX");
-        list.player.classList.remove("currentTurnO");
+        list.name.player.classList.remove("currentTurnX");
+        list.name.player.classList.remove("currentTurnO");
     })
 
     alertCheck = true;
@@ -116,12 +92,6 @@ function deleteElementsByClass(className) {
     while(elements.length > 0){
         elements[0].parentNode.removeChild(elements[0]);
     }
-}
-
-function countPlusOne(countScore) {
-    countScore = countScore + 1;
-    ScorePlayerOne.innerHTML = "Score : "+countScorePlayerOne;
-    ScorePlayerTwo.innerHTML = "Score : "+countScorePlayerTwo;
 }
 
 // la base des carrés qui seront clonés
@@ -180,6 +150,9 @@ const ScorePlayerTwo = document.createElement("p");
 ScorePlayerTwo.classList.add("scorePlayer");
 ScorePlayerTwo.innerHTML = "Score : "+countScorePlayerTwo;
 
+// nb de carré dans le plateau
+const nbCarre = 9;
+
 // array des class que j'utilise pour supprimer des balises html
 const elementsToDelete = [
     {
@@ -190,23 +163,55 @@ const elementsToDelete = [
     }
 ];
 
-// signIsX, signIsO, currentturno, 
+// object playerOne, playerTwo et la list des player,  
+const playerOne = {
+    player: sidePlayerOne,
+    sign: playerOneSign,
+    score: countScorePlayerOne,
+    elemScore: ScorePlayerOne,
+
+    getScore(){
+        return this.score;
+    },
+    setScore(nvScore){
+        this.score = nvScore;
+        countScorePlayerOne = this.score;
+    },
+    setSign(sign) {
+        this.sign = sign;  
+    }
+};
+
+const playerTwo = {
+    player: sidePlayerTwo,
+    sign: playerTwoSign,
+    score: countScorePlayerTwo,
+    elemScore: ScorePlayerTwo,
+
+    getScore() {
+        return this.score;
+    },
+    setScore(nvScore){
+        this.score = nvScore;     
+        countScorePlayerTwo = this.score;      
+    },  
+    setSign(sign) {
+        this.sign = sign;  
+    }
+};
+
 
 // liste des player
 const listPlayers = [
     {
-        player:sidePlayerOne,
-        sign:playerOneSign,
-        score:countScorePlayerOne,
-        elemScore:ScorePlayerOne
+        name: playerOne
     },
+
     {
-        player:sidePlayerTwo,
-        sign:playerTwoSign,
-        score:countScorePlayerTwo,
-        elemScore:ScorePlayerTwo
+        name: playerTwo
     }
 ];
+
 
 // message de victoire
 const victoire = document.createElement("p");
@@ -222,6 +227,9 @@ let alertCheck = true;
 
 // me permet d'être sur que le score n'augmente que d'un point par partie
 let countCheck = true;
+
+// score total des deux player
+let countScoreTotal;
 
 // position nécessaire pour permettre à X ou O de gagner
 const winningPositions = [
@@ -270,11 +278,12 @@ const winningPositions = [
     }
 ];
 
+
 // le jeu commence
 startGame.addEventListener("click", function() {
 
     playerOneSign = prompt("Player 1 : O or X ?","O");
-    while(playerOneSign != "O"&&playerOneSign != "X") {
+    while(playerOneSign != "O" && playerOneSign != "X") {
         if(playerOneSign == "o"||playerOneSign == "x") {
             alert("Veuillez mettre le caractères en majuscule !");
             playerOneSign = prompt("O or X ?",playerOneSign);
@@ -283,21 +292,24 @@ startGame.addEventListener("click", function() {
             playerOneSign = prompt("O or X ?");
         }
     }
+    playerOne.setSign(playerOneSign);
     
     playerTwoSign = prompt("Player 2 : O or X ?","X");
     while((playerTwoSign == playerOneSign) ^ (playerTwoSign != "O" && playerTwoSign != "X")) {
-        console.log("p1 est :"+playerOneSign+" et p2 :"+playerTwoSign)
         if(playerTwoSign == playerOneSign) {
             alert("Ce symbole est déjà choisi");
-            playerTwoSign = prompt("O or X ?",playerOneSign);
+            playerTwoSign = prompt("O or X ?");
+
+        } else if(playerTwoSign == "o"||playerTwoSign == "x") {
+            alert("Veuillez mettre le caractères en majuscule !");
+            playerTwoSign = prompt("O or X ?",playerTwoSign);
+
         } else {
             alert("Choississez un caractère valide !");
             playerTwoSign = prompt("O or X ?");
         }
     }
-    
-    sidePlayerOne.classList.add("signIs"+playerOneSign);
-    sidePlayerTwo.classList.add("signIs"+playerTwoSign);
+    playerTwo.setSign(playerTwoSign);
 
     sideSignOne.innerHTML = "Symbole : "+playerOneSign;
     sidePlayerOne.appendChild(sideSignOne);
@@ -308,18 +320,22 @@ startGame.addEventListener("click", function() {
     sidePlayerOne.appendChild(ScorePlayerOne);
     sidePlayerTwo.appendChild(ScorePlayerTwo);
 
-    const nbCarre = 9;
     let nbClicked = 1;
 
-    currentSide = "O";
+    currentSide = prompt("Quel symbole va commencer ?","O");
+    while(currentSide != "O" && currentSide != "X") {
+        alert("Symbole invalide !");
+        currentSide = prompt("Quel symbole va commencer ?","O");
+    }
 
     displaySidesPlayers("show");
 
     switchTurnColor(currentSide)
 
+    startGame.classList.add("btnTurnOff");
+
     for(let i = 1; i <= nbCarre; i++) {
 
-        startGame.classList.add("btnTurnOff");
         const carreMorpion = carre.cloneNode();
         morpionBoard.appendChild(carreMorpion);
 
@@ -328,7 +344,7 @@ startGame.addEventListener("click", function() {
             if(carreMorpion.classList.contains("clickedO")||carreMorpion.classList.contains("clickedX")||carreMorpion.classList.contains("unclickable")) {
                 alert("Clic invalide !");
             } else {
-                carreMorpion.innerText = currentSide;
+                carreMorpion.innerHTML = currentSide;
                 carreMorpion.classList.add("clicked"+currentSide);
 
                 winningPositions.forEach((position) => {
@@ -348,43 +364,45 @@ startGame.addEventListener("click", function() {
                             const roundWinner = document.getElementsByClassName("currentTurn"+currentSide);
                             for (let i = 0; i < roundWinner.length; i++) {
                                 const openRoundWinner = roundWinner[i];
-                                openRoundWinner.appendChild(victoire);
-                                
+                                openRoundWinner.appendChild(victoire);                                
                             } 
 
                             listPlayers.forEach((list) => {
-                                if(list.player.classList.contains("currentTurn"+currentSide)) {
-                                    if(countCheck) {
-                                        list.score += 1;
-                                        countCheck = false;
+                                if(list.name.player.classList.contains("currentTurn"+currentSide) && countCheck) {
+                                    countCheck = false;   
+                                    list.name.setScore(list.name.getScore() + 1);    
+
+                                    if((playerOne.getScore() + playerTwo.getScore()) == 2) {
+                                        highestScore = Math.max(playerOne.getScore(), playerTwo.getScore());
+
+                                        if(list.name.getScore() == highestScore) {
+                                            alert(list.name.sign+" à gagné la partie avec le plus de points !")
+                                        }
                                     }
 
                                     window.addEventListener("click", () => {
-                                        list.elemScore.innerHTML = "Score : "+list.score;
+                                        list.name.elemScore.innerHTML = "Score : "+list.name.getScore();
                                     })
-
-                                    console.log("Score "+list.player+" : +1 ");
-                                    console.log("Score "+list.score);
                                 }
                             })
 
-                            for (let i = 0; i < clickedSides.length; i++) {
-                                const openCarreMorpion = clickedSides[i];
-                                openCarreMorpion.classList.add("unclickable");                                
-                            }
+                            const openCarreMorpion = clickedSides[i];
+                            openCarreMorpion.classList.add("unclickable");                                
 
                             // delete takes effect only when i click on the reset btn, because of an eventListenner in gameOver()
                             elementsToDelete.forEach((deletes) => {
-                                gameOver(deletes.class);                                
+                                resetGame.addEventListener("click", () => deleteElementsByClass(deletes.class));                           
                             })                           
+                            gameOver();    
                         }
                     }
                 });
                 
                 if(nbClicked == nbCarre && alertCheck) {
                     elementsToDelete.forEach((deletes) => {
-                        gameOver(deletes.class);
+                        resetGame.addEventListener("click", () => deleteElementsByClass(deletes.class));
                     })
+                    gameOver();
                 }
 
                 if(alertCheck) {
