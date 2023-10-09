@@ -1,17 +1,17 @@
 // function qui permet de changer le tour des joueurs
 function switchSides() {
-    if(currentSide == playerOneSign) {
-        currentSide = playerTwoSign;
+    if(currentSign == playerOneSign) {
+        currentSign = playerTwoSign;
     } else {
-        currentSide = playerOneSign;
+        currentSign = playerOneSign;
     }
-    switchTurnColor(currentSide);
+    switchTurnColor(currentSign);
 }
 
 // ajoute une classe au joueur dont c'est le tour de jouer et l'enlève de l'autre joueur
-function switchTurnColor(currentSide) {
+function switchTurnColor(currentSign) {
     listPlayers.forEach((list) => {
-        switch (currentSide) {
+        switch (currentSign) {
             case "X":
                 if(list.name.sign == "X") {
                     list.name.player.classList.add("currentTurnX");
@@ -36,7 +36,23 @@ function switchTurnColor(currentSide) {
     })
 }
 
-// add ou remove les div sidePlayer
+// converti le symbole "X" ou "O" par l'icon qui représente le symbole
+function convertStringToIcon(stringToConvert) {
+    switch (stringToConvert) {
+        case "X":
+            return "<i class='fa-solid fa-xmark'></i>";
+            break;
+
+        case "O":
+            return "<i class='fa-regular fa-circle'></i>";
+            break;
+
+        default:
+            break;
+    }
+}
+
+// fait apparaitre ou disparaitre les div sidePlayer
 function displaySidesPlayers(addOrRemove) {
     switch (addOrRemove) {
         case "show":
@@ -65,12 +81,12 @@ function gameOver() {
         alert("Round terminé !");
     }
     alertCheck = false;
-
+    countLine = 0; 
     resetGame.classList.remove("btnTurnOff");
     resetGame.addEventListener("click", () => restartTheGame());
 }
 
-// function qui restart le jeu en effaçant le contenu du board, appelé lors d'un clic sur le btn reset avec l'eventListener de gameOver() 
+// function qui remet le board à zéro, en fonction si la partie est terminée ou non
 function restartTheGame(){
     displaySidesPlayers("hide");
 
@@ -84,6 +100,10 @@ function restartTheGame(){
         playerOne.setScore(0);
         playerTwo.setScore(0);
         gameIsFinished = false;
+        playerOneName = "";
+        playerTwoName = "";
+        userNameCheck = true;
+        currentSign = "";            
     }
 
     alertCheck = true;
@@ -93,7 +113,7 @@ function restartTheGame(){
     startGame.classList.remove("btnTurnOff");
 }
 
-// delete des balises en utilisants les tring de l'array classToDelete
+// delete des balises HTML en utilisants les string de l'array classToDelete
 function deleteElementsByClass(className) {
     const elements = document.getElementsByClassName(className);
     while(elements.length > 0){
@@ -108,40 +128,59 @@ carre.classList.add("grid-item");
 // la div qui contain tout le board et la grid du morpion
 const morpionBoard = document.getElementById("morpionBoard");
 
-// sign du side en train de jouer
-let currentSide;
+// symbole actuellement en train de jouer
+let currentSign;
+
+// le symbole qui a commencé la partie 
+let startingSign;
+
+//nb de rounds à gagner pour remporter la partie
+const nbRounds = 3;
 
 //////////////////// bloc avec les infos player 1 ////////////////////
-//div
+//div qui contient toutes les infos
 const sidePlayerOne = document.getElementById("sidePlayerOne");
 
-// <p> 'player 1' -> dans le future u username
+// <p> 'player 1'
 const textPlayerOne = document.createElement("p");
 textPlayerOne.innerHTML = "Player 1";
 sidePlayerOne.appendChild(textPlayerOne);
 
-// variable dans laquel je stock le symbole du player 1
+// username choisi (ou non) par le player 1
+let playerOneName = "";
+
+// balise HTML ou j'affiche le username du player 1
+const elemPlayerOneName = document.createElement("p");
+
+
+// variable ou je stock je stock le symbole du player 1
 let playerOneSign;
 
 // <p> dans lequel j'ecris le symbole choisi par le player 1
 const sideSignOne = document.createElement("p");
 
-// variable que j'utilise comme compteur pour avoir le score du player 1
+// variable que j'utilise pour stocker le score du player 1
 let countScorePlayerOne = 0;
 
-// element html pour afficher le score du player 1
+// balise html pour afficher le score du player 1
 const ScorePlayerOne = document.createElement("p");
 ScorePlayerOne.classList.add("scorePlayer");
 ScorePlayerOne.innerHTML = "Score : "+countScorePlayerOne;
 
 //////////////////// bloc avec les infos player 2 ////////////////////
-//div
+//div qui contient toutes les infos
 const sidePlayerTwo = document.getElementById("sidePlayerTwo");
 
-// <p> 'player 2' -> dans le future u username
+// <p> 'player 2'
 const textPlayerTwo = document.createElement("p");
 textPlayerTwo.innerHTML = "Player 2";
 sidePlayerTwo.appendChild(textPlayerTwo);
+
+// username choisi (ou non) par le player 2
+let playerTwoName = "";
+
+// balise HTML que j'utilise pour affiche le username du player
+const elemPlayerTwoName = document.createElement("p");
 
 // variable dans laquel je stock le symbole du player 2
 let playerTwoSign;
@@ -157,9 +196,6 @@ const ScorePlayerTwo = document.createElement("p");
 ScorePlayerTwo.classList.add("scorePlayer");
 ScorePlayerTwo.innerHTML = "Score : "+countScorePlayerTwo;
 
-// nb de carré dans le plateau
-const nbCarre = 9;
-
 // array des class que j'utilise pour supprimer des balises html
 const elementsToDelete = [
     {
@@ -170,9 +206,10 @@ const elementsToDelete = [
     }
 ];
 
-// object playerOne, playerTwo et la list des player,  
+// object playerOne, playerTwo et la liste des joueurs,  
 const playerOne = {
     libelle: "Player 1",
+    username: playerOneName,
     player: sidePlayerOne,
     sign: playerOneSign,
     score: countScorePlayerOne,
@@ -187,11 +224,15 @@ const playerOne = {
     },
     setSign(sign) {
         this.sign = sign;  
+    },
+    setUsername(nvUsername) {
+        this.username = nvUsername;
     }
 };
 
 const playerTwo = {
     libelle: "Player 2",
+    username: playerTwoName,
     player: sidePlayerTwo,
     sign: playerTwoSign,
     score: countScorePlayerTwo,
@@ -202,15 +243,18 @@ const playerTwo = {
     },
     setScore(nvScore){
         this.score = nvScore;     
-        countScorePlayerTwo = this.score;      
+        countScorePlayerTwo = this.score;
     },  
     setSign(sign) {
         this.sign = sign;  
+    },
+    setUsername(nvUsername) {
+        this.username = nvUsername;
     }
 };
 
 
-// liste des player
+// liste des joueurs
 const listPlayers = [
     {
         name: playerOne
@@ -240,8 +284,7 @@ let countCheck = true;
 // check si la partie a été remporté par quelqu'un
 let gameIsFinished = false;
 
-// score total des deux player
-let countScoreTotal;
+let userNameCheck = true;
 
 // position nécessaire pour permettre à X ou O de gagner
 const winningPositions = [
@@ -290,9 +333,25 @@ const winningPositions = [
     }
 ];
 
-
 // le jeu commence
 startGame.addEventListener("click", function() {
+
+    if(morpionBoard.childElementCount >= 1) {
+        elementsToDelete.forEach((deletes) => {
+            deleteElementsByClass(deletes.class);
+        })     
+        gameOver();
+        restartTheGame();
+    }
+
+    if(userNameCheck) {
+        playerOneName = prompt("Nom du player 1 :");
+        playerTwoName = prompt("Nom du player 2 :");
+
+        playerOne.setUsername(playerOneName);
+        playerTwo.setUsername(playerTwoName);
+        userNameCheck = false;
+    }
 
     playerOneSign = prompt("Player 1 : O or X ?","O");
     while(playerOneSign != "O" && playerOneSign != "X") {
@@ -323,26 +382,50 @@ startGame.addEventListener("click", function() {
     }
     playerTwo.setSign(playerTwoSign);
 
+    elemPlayerOneName.innerHTML = playerOneName;
     sideSignOne.innerHTML = "Symbole : "+playerOneSign;
+    sidePlayerOne.appendChild(elemPlayerOneName);
     sidePlayerOne.appendChild(sideSignOne);
-
-    sideSignTwo.innerHTML = "Symbole : "+playerTwoSign;
-    sidePlayerTwo.appendChild(sideSignTwo);
-
     sidePlayerOne.appendChild(ScorePlayerOne);
+    
+    elemPlayerTwoName.innerHTML = playerTwoName;
+    sideSignTwo.innerHTML = "Symbole : "+playerTwoSign;
+    sidePlayerTwo.appendChild(elemPlayerTwoName);
+    sidePlayerTwo.appendChild(sideSignTwo);
     sidePlayerTwo.appendChild(ScorePlayerTwo);
 
+    //nb de click de carré clické 
     let nbClicked = 1;
 
-    currentSide = prompt("Quel symbole va commencer ?","O");
-    while(currentSide != "O" && currentSide != "X") {
-        alert("Symbole invalide !");
-        currentSide = prompt("Quel symbole va commencer ?","O");
+    // nb de carré dans le plateau
+    const nbCarre = 9;
+
+    if(currentSign == "X" || currentSign == "O" ) {
+        switch (startingSign) {
+            case "X":
+                currentSign = "O";
+                break;
+
+            case "O":
+                currentSign = "X";
+                break;
+
+            default:
+                break;
+        }
+        startingSign = currentSign;
+    } else {
+        currentSign = prompt("Quel symbole va commencer ?","O");
+        while(currentSign != "O" && currentSign != "X") {
+            alert("Symbole invalide !");
+            currentSign = prompt("Quel symbole va commencer ?","O");
+        }
+        startingSign = currentSign;
     }
 
     displaySidesPlayers("show");
 
-    switchTurnColor(currentSide)
+    switchTurnColor(currentSign);
 
     startGame.classList.add("btnTurnOff");
 
@@ -356,59 +439,104 @@ startGame.addEventListener("click", function() {
             if(carreMorpion.classList.contains("clickedO")||carreMorpion.classList.contains("clickedX")||carreMorpion.classList.contains("unclickable")) {
                 alert("Clic invalide !");
             } else {
-                carreMorpion.innerHTML = currentSide;
-                carreMorpion.classList.add("clicked"+currentSide);
+                carreMorpion.innerHTML = convertStringToIcon(currentSign);
+                carreMorpion.classList.add("clicked"+currentSign);
+                for (let i = 0; i < carreMorpion.children.length; i++) {
+                    const enfantMorpion = carreMorpion.children[i];
+                    enfantMorpion.animate(
+                        [
+                            {transform:"scale(0)"},
+                            {transform:"scale(1)"},
+                        ],
+                        {
+                            duration:300,
+                            iterations:1,
+                        }
+                    )
+                }
 
                 winningPositions.forEach((position) => {
-
                     const clickedSides = document.getElementsByClassName("grid-item");
+                    const roundWinner = document.getElementsByClassName("currentTurn"+currentSign);
 
                     for (let i = 1; i < clickedSides.length; i++) {
 
-                        if (clickedSides[position.posOne].classList.contains("clicked"+currentSide) 
-                        && clickedSides[position.posTwo].classList.contains("clicked"+currentSide) 
-                        && clickedSides[position.posThree].classList.contains("clicked"+currentSide)) {
-
+                        if (clickedSides[position.posOne].classList.contains("clicked"+currentSign) 
+                        && clickedSides[position.posTwo].classList.contains("clicked"+currentSign) 
+                        && clickedSides[position.posThree].classList.contains("clicked"+currentSign)) {
+                            
                             clickedSides[position.posOne].classList.add("carreWinner");
                             clickedSides[position.posTwo].classList.add("carreWinner");
                             clickedSides[position.posThree].classList.add("carreWinner");
-   
-                            const roundWinner = document.getElementsByClassName("currentTurn"+currentSide);
+
                             for (let i = 0; i < roundWinner.length; i++) {
                                 const openRoundWinner = roundWinner[i];
-                                openRoundWinner.appendChild(victoire);                                
+                                openRoundWinner.appendChild(victoire);
                             } 
 
+                            carreWinner = document.getElementsByClassName("carreWinner");
+                            for (let i = 0; i < carreWinner.length; i++) {
+
+                                const openCarreWinner = carreWinner[i];
+
+                                for (let i = 0; i < openCarreWinner.children.length; i++) {
+
+                                    const openWinnerChildren = openCarreWinner.children[i];
+                                    openWinnerChildren.style.transform = "scale(1.25)";
+                                }
+                            }
+                            
                             listPlayers.forEach((list) => {
-                                if(list.name.player.classList.contains("currentTurn"+currentSide) && countCheck) {
-                                    countCheck = false;   
-                                    list.name.setScore(list.name.getScore() + 1);    
-                                    
+                                if(list.name.player.classList.contains("currentTurn"+currentSign) && countCheck) {
+                                    countCheck = false;                                                                               
+                                    list.name.setScore(list.name.getScore() + 1);                                                                            
                                     window.addEventListener("click", () => {
                                         list.name.elemScore.innerHTML = "Score : "+list.name.getScore();
                                     })
 
-                                    console.log("p1 "+playerOne.getScore() )
-                                    console.log("p2 "+playerTwo.getScore())
-                                    console.log("total "+(playerOne.getScore() + playerTwo.getScore()))
-                                    console.log("max : "+Math.max(playerOne.getScore(), playerTwo.getScore()))
+                                    if((Math.max(playerOne.getScore(), playerTwo.getScore())) == nbRounds) {
+                                        if(list.name.username.length <= 0) {
+                                            alert(list.name.libelle+" à gagné la partie avec le plus de points !");
+                                            gameIsFinished = true;
+                                        } else {
+                                            alert(list.name.username+" à gagné la partie avec le plus de points !");
+                                            gameIsFinished = true;
+                                        }
 
-                                    if((Math.max(playerOne.getScore(), playerTwo.getScore())) == 3) {
-
-                                        alert(list.name.libelle+" à gagné la partie avec le plus de points !");
-                                        gameIsFinished = true;
-                                        
+                                        // for (let i = 0; i < clickedSides.length; i++) {
+                                        //     const winningCarreMorpion = clickedSides[i];
+                                            
+                                        //     winningCarreMorpion.innerHTML = convertStringToIcon(list.name.sign);
+                                        //     winningCarreMorpion.classList.add("Clicked"+currentSign); 
+                                        //     winningCarreMorpion.classList.add("carreWinner"); 
+                                        // }
                                     }
                                 }
-                            })
+                            })                            
 
                             const openCarreMorpion = clickedSides[i];
                             openCarreMorpion.classList.add("unclickable");                                
-
-                            // delete takes effect only when i click on the reset btn, because of an eventListenner in gameOver()
+ 
                             elementsToDelete.forEach((deletes) => {
-                                resetGame.addEventListener("click", () => deleteElementsByClass(deletes.class));                           
-                            })                           
+                                resetGame.addEventListener("click", function() {
+                                    deleteElementsByClass(deletes.class);  
+                                    playerOne.setScore(0);
+                                    playerTwo.setScore(0);
+                                    playerOneName = "";
+                                    playerTwoName = "";     
+                                    startGame.innerHTML = "Start the game !";    
+                                    userNameCheck = true;        
+                                    currentSign = "";            
+                                })
+                            })
+
+                            if(gameIsFinished) {
+                                startGame.innerHTML = "Start the game !";    
+                                startGame.classList.add("btnTurnOff");                     
+                            } else {
+                                startGame.innerHTML = "Restart the game !";
+                                startGame.classList.remove("btnTurnOff");            
+                            }                           
                             gameOver();    
                         }
                     }
@@ -416,8 +544,24 @@ startGame.addEventListener("click", function() {
                 
                 if(nbClicked == nbCarre && alertCheck) {
                     elementsToDelete.forEach((deletes) => {
-                        resetGame.addEventListener("click", () => deleteElementsByClass(deletes.class));
+                        resetGame.addEventListener("click", function() {
+                            deleteElementsByClass(deletes.class);  
+                            playerOne.setScore(0);
+                            playerTwo.setScore(0);
+                            playerOneName = "";
+                            playerTwoName = "";      
+                            startGame.innerHTML = "Start the game !";                              
+                        })
+
                     })
+
+                    if(gameIsFinished) {
+                        startGame.innerHTML = "Start the game !";    
+                        startGame.classList.add("btnTurnOff");                     
+                    } else {
+                        startGame.innerHTML = "Restart the game !";
+                        startGame.classList.remove("btnTurnOff");            
+                    }  
                     gameOver();
                 }
 
@@ -429,3 +573,5 @@ startGame.addEventListener("click", function() {
         })
     }
 })
+
+

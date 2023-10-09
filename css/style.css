@@ -1,11 +1,10 @@
 /******************** general ********************/
 body {
     background-color: rgb(124, 86, 50);
-    font-family: Geneva, Tahoma, sans-serif;
+    font-family:Geneva, Tahoma, sans-serif;
 }
 
 main {
-    /* padding: 5%; */
 }
 
 /******************** Board ********************/
@@ -38,10 +37,10 @@ main {
 #sidePlayerOne {
     width: 300px;
     height: 500px;
-    background-color: white;
+    background-color: rgb(163, 163, 163);
     border-radius: 15px;
     text-align: center;
-
+    transition: 0.3s;
 }
 
 #sidePlayerOne p{
@@ -51,10 +50,10 @@ main {
 #sidePlayerTwo {
     width: 300px;
     height: 500px;
-    background-color: white;
+    background-color: rgb(161, 161, 161);
     border-radius: 15px;
-
     text-align: center;
+    transition: 0.3s;
 }
 
 #sidePlayerTwo p{
@@ -66,54 +65,65 @@ main {
 }
 
 #morpionBloc .currentTurnO {
-    background-color: rgb(137, 228, 137);
+    background-color: rgb(40, 167, 40);
+    box-shadow: 10px 5px 5px rgb(32, 32, 32);
+    transition: 0.3s;
 }
 
 #morpionBloc .currentTurnX {
-    background-color: rgb(226, 123, 123);
+    background-color: rgb(189, 45, 45);
+    box-shadow: 10px 5px 5px rgb(32, 32, 32);
+    transition: 0.3s;
+    
 }
 
-.messageVictoire {
-    font-size: 2em;
+#morpionBloc .messageVictoire {
+    font-size: 2.5em;
     font-weight: bold;
 }
-
 
 /*************** item ***************/
 .grid-item { /* carré de base */
     width: 250px;
     height: 250px;
-    margin: 5px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     background-color: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0, 0, 0, 0.8);
-    /* border-radius: 10%; */
-
-    font-size: 4em;
     text-align: center;
+}
+
+.grid-item:nth-child(even) {
+    background-color: lightyellow;
 }
 
 .clickedX { /* carré clické X */
     cursor: not-allowed;
-    color: red;
+    color: rgb(189, 45, 45);
+    font-size: 14em;
 }
 
 .clickedO { /* carré clické O */
     cursor: not-allowed;
-    color: green;
+    color: rgb(40, 167, 40);
+    font-size: 11.5em;
 }
 
 .unclickable { /* carré non clickable après la fin de la partie */
     cursor: not-allowed;
 }
 
-.carreWinner { /* change le background-color des carrés avec une position gagnante */
-    background-color: rgb(43, 255, 0);
+#morpionBloc .carreWinner { /* change le background-color des carrés avec une position gagnante */
+    background-color: rgb(232, 243, 84);
+    transition: 0.3s;
+}
 
+#morpionBloc #morpionBoard .fa-xmark{
+    transition:0.3s;
+}
+
+#morpionBloc #morpionBoard .fa-circle{
+    transition:0.3s;
 }
 
 /*************** btn ***************/
@@ -123,7 +133,13 @@ main {
     font-size: 1.5em;
     position: absolute;
     top: 25px;
-    
+    border-radius: 10px;
+    border: 5px solid gray;
+    opacity: 0.9;
+}
+
+#btnStartGame:active {
+    background-color: rgb(204, 204, 204);
 }
 
 #btnResetGame {
@@ -131,7 +147,14 @@ main {
     height: 80px;
     font-size: 1.5em;
     position: absolute;
-    bottom: 0px;
+    bottom: 25px;
+    border-radius: 10px;
+    border: 5px solid gray;
+    opacity: 0.9;
+}
+
+#btnResetGame:active {
+    background-color: rgb(204, 204, 204);
 }
 
 .btnTurnOff {
