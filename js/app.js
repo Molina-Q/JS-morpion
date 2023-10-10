@@ -154,7 +154,7 @@ const elemPlayerOneName = document.createElement("p");
 
 
 // variable ou je stock je stock le symbole du player 1
-let playerOneSign;
+let playerOneSign = "";
 
 // <p> dans lequel j'ecris le symbole choisi par le player 1
 const sideSignOne = document.createElement("p");
@@ -183,7 +183,7 @@ let playerTwoName = "";
 const elemPlayerTwoName = document.createElement("p");
 
 // variable dans laquel je stock le symbole du player 2
-let playerTwoSign;
+let playerTwoSign = "";
 
 // <p> dans lequel j'ecris plus tard le symbole choisi par le player 2
 const sideSignTwo = document.createElement("p");
@@ -353,34 +353,37 @@ startGame.addEventListener("click", function() {
         userNameCheck = false;
     }
 
-    playerOneSign = prompt("Player 1 : O or X ?","O");
-    while(playerOneSign != "O" && playerOneSign != "X") {
-        if(playerOneSign == "o"||playerOneSign == "x") {
-            alert("Veuillez mettre le caractères en majuscule !");
-            playerOneSign = prompt("O or X ?",playerOneSign);
-        } else {
-            alert("Choississez un caractère valide !");
-            playerOneSign = prompt("O or X ?");
+    if(playerOneSign == false) {
+
+        playerOneSign = prompt("Player 1 : O or X ?","O");
+        while(playerOneSign != "O" && playerOneSign != "X") {
+            if(playerOneSign == "o"||playerOneSign == "x") {
+                alert("Veuillez mettre le caractères en majuscule !");
+                playerOneSign = prompt("O or X ?",playerOneSign);
+            } else {
+                alert("Choississez un caractère valide !");
+                playerOneSign = prompt("O or X ?");
+            }
         }
-    }
-    playerOne.setSign(playerOneSign);
+        playerOne.setSign(playerOneSign);
+        
+        playerTwoSign = prompt("Player 2 : O or X ?","X");
+        while((playerTwoSign == playerOneSign) ^ (playerTwoSign != "O" && playerTwoSign != "X")) {
+            if(playerTwoSign == playerOneSign) {
+                alert("Ce symbole est déjà choisi");
+                playerTwoSign = prompt("O or X ?");
     
-    playerTwoSign = prompt("Player 2 : O or X ?","X");
-    while((playerTwoSign == playerOneSign) ^ (playerTwoSign != "O" && playerTwoSign != "X")) {
-        if(playerTwoSign == playerOneSign) {
-            alert("Ce symbole est déjà choisi");
-            playerTwoSign = prompt("O or X ?");
-
-        } else if(playerTwoSign == "o"||playerTwoSign == "x") {
-            alert("Veuillez mettre le caractères en majuscule !");
-            playerTwoSign = prompt("O or X ?",playerTwoSign);
-
-        } else {
-            alert("Choississez un caractère valide !");
-            playerTwoSign = prompt("O or X ?");
+            } else if(playerTwoSign == "o"||playerTwoSign == "x") {
+                alert("Veuillez mettre le caractères en majuscule !");
+                playerTwoSign = prompt("O or X ?",playerTwoSign);
+    
+            } else {
+                alert("Choississez un caractère valide !");
+                playerTwoSign = prompt("O or X ?");
+            }
         }
+        playerTwo.setSign(playerTwoSign);
     }
-    playerTwo.setSign(playerTwoSign);
 
     elemPlayerOneName.innerHTML = playerOneName;
     sideSignOne.innerHTML = "Symbole : "+playerOneSign;
@@ -498,9 +501,11 @@ startGame.addEventListener("click", function() {
                                         if(list.name.username.length <= 0) {
                                             alert(list.name.libelle+" à gagné la partie avec le plus de points !");
                                             gameIsFinished = true;
+                                            playerOneSign = "";
                                         } else {
                                             alert(list.name.username+" à gagné la partie avec le plus de points !");
                                             gameIsFinished = true;
+                                            playerOneSign = "";
                                         }
 
                                         // for (let i = 0; i < clickedSides.length; i++) {
@@ -526,7 +531,8 @@ startGame.addEventListener("click", function() {
                                     playerTwoName = "";     
                                     startGame.innerHTML = "Start the game !";    
                                     userNameCheck = true;        
-                                    currentSign = "";            
+                                    currentSign = "";    
+                                    playerOneSign = "";
                                 })
                             })
 
@@ -550,7 +556,8 @@ startGame.addEventListener("click", function() {
                             playerTwo.setScore(0);
                             playerOneName = "";
                             playerTwoName = "";      
-                            startGame.innerHTML = "Start the game !";                              
+                            startGame.innerHTML = "Start the game !";  
+                            playerOneSign = "";
                         })
 
                     })
