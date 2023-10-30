@@ -1,3 +1,3 @@
 # JS-morpion
 
-Morpion re-created in javascript
+tic-tac-toe re-created in javascript
