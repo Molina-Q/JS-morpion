@@ -4,6 +4,8 @@
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
 <h1>Re-created in JS</h1>
-<p>You can win or lose</p>
-<p>There is a score system</p>
-
+<ul>
+  <li>There are winning conditions</li>
+  <li>A score system</li>
+  <li>Two players max</li>
+</ul>
